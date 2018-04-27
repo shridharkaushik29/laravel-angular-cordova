@@ -35,6 +35,7 @@ class Compiler {
         $this->app->setConfig("assets.url", "assets");
         $this->app->setConfig("assets.global.url", "/");
         $this->app->setConfig("bower.base_url", "bower_components");
+        $this->app->setConfig("isCordova", true);
         $this->www_path = "$this->path/www";
     }
 
