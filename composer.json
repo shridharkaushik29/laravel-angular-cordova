@@ -1,0 +1,20 @@
+{
+    "name": "shridharkaushik29/laravel-angular-cordova",
+    "description": "Convert angularjs application to cordova app in just seconds",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Shridhar Sharma",
+            "email": "shridharkaushik29@gmail.com"
+        }
+    ],
+    "require": {
+        "shridharkaushik29/laravel-bower": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shridhar\\Cordova\\": "src/"
+        }  
+    },
+    "minimum-stability": "stable"
+}
