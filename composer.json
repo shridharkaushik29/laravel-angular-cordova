@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "shridharkaushik29/laravel-bower": "*"
+        "shridharkaushik29/laravel-angular-app": "*"
     },
     "autoload": {
         "psr-4": {
