@@ -32,8 +32,8 @@ class Compiler {
         $this->app->setConfig("site.url", $site_url);
         $this->app->setConfig("templates.url", "templates");
         $this->app->setConfig("assets.url", "assets");
-        $this->app->setConfig("assets.global.url", "./");
-//        $this->app->setConfig("bower.base_url", "bower_components");
+        $this->app->setConfig("assets.global.url", "/");
+        $this->app->setConfig("bower.base_url", $this->app->getConfig("cordova.bower.baseUrl"));
         $this->www_path = "$this->path/www";
     }
 
