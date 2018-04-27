@@ -35,6 +35,25 @@ Artisan::command("cordova:platform {action} {--app=} {--platform=}", function($a
     }
 });
 
+Artisan::command("cordova:plugin {action} {--app=} {--plugin=}", function($action, $app = null, $plugin = null) {
+    $app = $app ?: $this->ask("App name?");
+    $compiler = Compiler::app($app);
+    $plugin = $plugin ?: $this->ask('Plugin name?');
+    switch ($action) {
+        case 'add':
+            $compiler->add_plugin($plugin);
+            break;
+
+        case 'remove':
+            $compiler->remove_plugin($plugin);
+            break;
+
+        default:
+            throw new Exception("Invalid action $action");
+            break;
+    }
+});
+
 Artisan::command("cordova:run {app} {--platform=}", function($app, $platform = null) {
     $compiler = Compiler::app($app);
     $compiler->compile();

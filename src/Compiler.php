@@ -3,6 +3,7 @@
 namespace Shridhar\Cordova;
 
 use Shridhar\Angular\Facades\App;
+use Shridhar\Bower\Component;
 use Illuminate\Support\Facades\File;
 use Exception;
 
@@ -33,7 +34,7 @@ class Compiler {
         $this->app->setConfig("templates.url", "templates");
         $this->app->setConfig("assets.url", "assets");
         $this->app->setConfig("assets.global.url", "/");
-        $this->app->setConfig("bower.base_url", $this->app->getConfig("cordova.bower.baseUrl"));
+        $this->app->setConfig("bower.base_url", "bower_components");
         $this->www_path = "$this->path/www";
     }
 
@@ -65,6 +66,36 @@ class Compiler {
         });
     }
 
+    function compile_bower_components() {
+        collect($this->app->getConfig("bower.components"))->each([$this, "copy_bower_component"]);
+    }
+
+    function copy_bower_component($name) {
+        $component = Component::make([
+                    "name" => $name
+        ]);
+        $component->dependencies()->each(function($dep) {
+            $this->copy_bower_component($dep->name());
+        });
+        $source = public_path("assets/bower_components/$name");
+        $dest = "$this->www_path/bower_components/$name";
+        if (file_exists($source) && is_dir($source) && !file_exists($dest)) {
+            File::copyDirectory($source, $dest);
+        }
+    }
+
+    function copy_assets() {
+        $assets = $this->app->loadedAssets();
+        foreach ($assets as $asset) {
+            $source = "$asset[base_path]/$asset[name]";
+            $path = "$this->www_path/$asset[base_url]/$asset[name]";
+            if (file_exists($source)) {
+                @mkdir(dirname($path), 0777, true);
+                File::copy($source, $path);
+            }
+        }
+    }
+
     function create() {
         $path = $this->path;
         if (file_exists($path) && !is_dir($path)) {
@@ -84,6 +115,14 @@ class Compiler {
         $this->run_command("platform remove $platform");
     }
 
+    function add_plugin($plugin) {
+        $this->run_command("plugin add $plugin");
+    }
+
+    function remove_plugin($plugin) {
+        $this->run_command("plugin remove $plugin");
+    }
+
     function run($platform) {
         $this->run_command("run $platform");
     }
@@ -95,14 +134,10 @@ class Compiler {
 
     function compile() {
         $this->compile_templates();
+        $this->compile_bower_components();
         $index = $this->app->index();
         File::put("$this->www_path/index.html", $index);
-        $assets = $this->app->loadedAssets();
-        foreach ($assets as $asset) {
-            $path = "$this->www_path/$asset[base_url]/$asset[name]";
-            @mkdir(dirname($path), 0777, true);
-            File::copy("$asset[base_path]/$asset[name]", $path);
-        }
+        $this->copy_assets();
     }
 
 }
