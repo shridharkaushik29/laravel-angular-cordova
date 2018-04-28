@@ -35,13 +35,19 @@ Artisan::command("cordova:platform {action} {--app=} {--platform=}", function($a
     }
 });
 
-Artisan::command("cordova:plugin {action} {--app=} {--plugin=}", function($action, $app = null, $plugin = null) {
+Artisan::command("cordova:plugin {action} {--app=} {--plugin=} {--a|all}", function($action, $app = null, $plugin = null, $all) {
     $app = $app ?: $this->ask("App name?");
     $compiler = Compiler::app($app);
-    $plugin = $plugin ?: $this->ask('Plugin name?');
+    if (!$all) {
+        $plugin = $plugin ?: $this->ask('Plugin name?');
+    }
     switch ($action) {
         case 'add':
-            $compiler->add_plugin($plugin);
+            if ($all) {
+                $compiler->add_all_plugins();
+            } else {
+                $compiler->add_plugin($plugin);
+            }
             break;
 
         case 'remove':
@@ -54,9 +60,14 @@ Artisan::command("cordova:plugin {action} {--app=} {--plugin=}", function($actio
     }
 });
 
-Artisan::command("cordova:run {app} {--platform=}", function($app, $platform = null) {
+Artisan::command("cordova:run {app} {--platform=} {--create}", function($app, $platform = null, $create) {
     $compiler = Compiler::app($app);
-    $compiler->compile();
     $platform = $platform ?: $this->choice('Platform name?', ['android', 'ios']);
-    $compiler->run($platform);
+    if (!$compiler->app_created() && $create) {
+        $compiler->create();
+    }
+    if (!$compiler->has_platform($platform)) {
+        $compiler->add_platform($platform);
+    }
+    $compiler->compile()->run($platform);
 });

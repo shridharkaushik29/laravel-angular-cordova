@@ -65,10 +65,12 @@ class Compiler {
             @mkdir(dirname($path), 0777, true);
             File::put($path, $view);
         });
+        return $this;
     }
 
     function compile_bower_components() {
         collect($this->app->getConfig("bower.components"))->each([$this, "copy_bower_component"]);
+        return $this;
     }
 
     function copy_bower_component($name) {
@@ -83,6 +85,7 @@ class Compiler {
         if (file_exists($source) && is_dir($source) && !file_exists($dest)) {
             File::copyDirectory($source, $dest);
         }
+        return $this;
     }
 
     function copy_assets() {
@@ -95,6 +98,7 @@ class Compiler {
                 File::copy($source, $path);
             }
         }
+        return $this;
     }
 
     function create() {
@@ -106,31 +110,63 @@ class Compiler {
         $name = basename($this->path);
         chdir($dir);
         system("cordova create $name");
+        return $this;
     }
 
     function add_platform($platform) {
         $this->run_command("platform add $platform");
+        return $this;
     }
 
     function remove_platform($platform) {
         $this->run_command("platform remove $platform");
+        return $this;
     }
 
     function add_plugin($plugin) {
         $this->run_command("plugin add $plugin");
+        return $this;
+    }
+
+    function add_all_plugins() {
+        $plugins = $this->app->getConfig("cordova.plugins") ?: [];
+        foreach ($plugins as $plugin) {
+            if (!$this->has_plugin($plugin)) {
+                $this->add_plugin($plugin);
+            }
+        }
+        return $this;
     }
 
     function remove_plugin($plugin) {
         $this->run_command("plugin remove $plugin");
+        return $this;
     }
 
     function run($platform) {
         $this->run_command("run $platform");
+        return $this;
     }
 
     function run_command($command) {
         chdir($this->path);
         system("cordova $command");
+        return $this;
+    }
+
+    function app_created() {
+        $path = "$this->path/config.xml";
+        return file_exists($path);
+    }
+
+    function has_platform($platform) {
+        $path = "$this->path/platforms/$platform";
+        return (file_exists($path) && is_dir($path));
+    }
+
+    function has_plugin($plugin) {
+        $path = "$this->path/plugins/$plugin";
+        return (file_exists($path) && is_dir($path));
     }
 
     function compile() {
@@ -139,6 +175,7 @@ class Compiler {
         $index = $this->app->index();
         File::put("$this->www_path/index.html", $index);
         $this->copy_assets();
+        return $this;
     }
 
 }
