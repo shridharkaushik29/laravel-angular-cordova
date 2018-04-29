@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Facades\Artisan;
 use Shridhar\Cordova\Compiler;
+use Shridhar\Angular\Facades\App;
 
-Artisan::command("cordova:create {name} {--platform=}", function($name, $platform = null) {
+Artisan::command("cordova:create {--app} {--platform=}", function($app, $platform = null) {
+    $name = $app ?: $this->choice("App name?", App::getAllApps()->pluck("name")->toArray());
     $compiler = Compiler::app($name);
     $compiler->create();
     if ($platform) {
@@ -11,13 +13,14 @@ Artisan::command("cordova:create {name} {--platform=}", function($name, $platfor
     }
 });
 
-Artisan::command("cordova:compile {name}", function($name) {
+Artisan::command("cordova:compile {--app}", function($app = null) {
+    $name = $app ?: $this->choice("App name?", App::getAllApps()->pluck("name")->toArray());
     $compiler = Compiler::app($name);
     $compiler->compile();
 });
 
 Artisan::command("cordova:platform {action} {--app=} {--platform=}", function($action, $app = null, $platform = null) {
-    $app = $app ?: $this->ask("App name?");
+    $app = $app ?: $this->choice("App name?", App::getAllApps()->pluck("name")->toArray());
     $compiler = Compiler::app($app);
     $platform = $platform ?: $this->choice('Platform name?', ['android', 'ios']);
     switch ($action) {
@@ -36,7 +39,7 @@ Artisan::command("cordova:platform {action} {--app=} {--platform=}", function($a
 });
 
 Artisan::command("cordova:plugin {action} {--app=} {--plugin=} {--a|all}", function($action, $app = null, $plugin = null, $all) {
-    $app = $app ?: $this->ask("App name?");
+    $app = $app ?: $this->choice("App name?", App::getAllApps()->pluck("name")->toArray());
     $compiler = Compiler::app($app);
     if (!$all) {
         $plugin = $plugin ?: $this->ask('Plugin name?');
@@ -60,7 +63,8 @@ Artisan::command("cordova:plugin {action} {--app=} {--plugin=} {--a|all}", funct
     }
 });
 
-Artisan::command("cordova:run {app} {--platform=} {--create}", function($app, $platform = null, $create) {
+Artisan::command("cordova:run {--app=} {--platform=} {--create}", function($app = null, $platform = null, $create) {
+    $app = $app ?: $this->choice("App name?", App::getAllApps()->pluck("name")->toArray());
     $compiler = Compiler::app($app);
     $platform = $platform ?: $this->choice('Platform name?', ['android', 'ios']);
     if (!$compiler->app_created() && $create) {
