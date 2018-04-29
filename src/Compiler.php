@@ -3,6 +3,7 @@
 namespace Shridhar\Cordova;
 
 use Shridhar\Angular\Facades\App;
+use Shridhar\Bower\Bower;
 use Shridhar\Bower\Component;
 use Illuminate\Support\Facades\File;
 use Exception;
@@ -80,10 +81,9 @@ class Compiler {
         $component->dependencies()->each(function($dep) {
             $this->copy_bower_component($dep->name());
         });
-        $source = public_path("assets/bower_components/$name");
         $dest = "$this->www_path/bower_components/$name";
-        if (file_exists($source) && is_dir($source) && !file_exists($dest)) {
-            File::copyDirectory($source, $dest);
+        if (!file_exists($dest)) {
+            Bower::getComponent($name)->copy($dest);
         }
         return $this;
     }
