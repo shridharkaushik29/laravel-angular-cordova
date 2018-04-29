@@ -83,7 +83,7 @@ class Compiler {
         });
         $dest = "$this->www_path/bower_components/$name";
         if (!file_exists($dest)) {
-            Bower::getComponent($name)->copy($dest);
+            $this->app->bower()->getComponent($name)->copy($dest);
         }
         return $this;
     }
