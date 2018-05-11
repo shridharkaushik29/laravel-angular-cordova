@@ -33,8 +33,8 @@ class Compiler {
         $this->app->setConfig("html5Mode", false);
         $this->app->setConfig("site.url", $site_url);
         $this->app->setConfig("templates.url", "templates");
-        $this->app->setConfig("assets.url", "assets");
-        $this->app->setConfig("assets.global.url", "/");
+        $this->app->setConfig("assets.url", "assets/app");
+        $this->app->setConfig("assets.global.url", "assets/global");
         $this->app->setConfig("bower.base_url", "bower_components");
         $this->app->setConfig("isCordova", true);
         $this->www_path = "$this->path/www";
@@ -91,7 +91,7 @@ class Compiler {
     function copy_assets() {
         $assets = $this->app->loadedAssets();
         foreach ($assets as $asset) {
-            $source = "$asset[base_path]/$asset[name]";
+            $source = "$asset[full_path]";
             $path = "$this->www_path/$asset[base_url]/$asset[name]";
             if (file_exists($source)) {
                 @mkdir(dirname($path), 0777, true);
