@@ -75,15 +75,13 @@ class Compiler {
     }
 
     function copy_bower_component($name) {
-        $component = Component::make([
-                    "name" => $name
-        ]);
+        $component = $this->app->bower()->getComponent($name);
         $component->dependencies()->each(function($dep) {
             $this->copy_bower_component($dep->name());
         });
         $dest = "$this->www_path/bower_components/$name";
         if (!file_exists($dest)) {
-            $this->app->bower()->getComponent($name)->copy($dest);
+            $component->copy($dest);
         }
         return $this;
     }

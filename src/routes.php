@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Artisan;
 use Shridhar\Cordova\Compiler;
 use Shridhar\Angular\Facades\App;
 
-Artisan::command("cordova:create {--app} {--platform=}", function($app, $platform = null) {
+Artisan::command("cordova:create {--app=} {--platform=}", function($app, $platform = null) {
     $name = $app ?: $this->choice("App name?", App::getAllApps()->pluck("name")->toArray());
     $compiler = Compiler::app($name);
     $compiler->create();
@@ -13,7 +13,7 @@ Artisan::command("cordova:create {--app} {--platform=}", function($app, $platfor
     }
 });
 
-Artisan::command("cordova:compile {--app}", function($app = null) {
+Artisan::command("cordova:compile {--app=}", function($app = null) {
     $name = $app ?: $this->choice("App name?", App::getAllApps()->pluck("name")->toArray());
     $compiler = Compiler::app($name);
     $compiler->compile();
